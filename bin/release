@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Copyright (C) 2020  IMAGIN Sp. z o.o.
+# Author: Marcin Engelmann <mengelmann@octivi.com>
+
+# Unofficial Bash "Strict Mode" http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+if (( $# < 1 )); then
+  echo "Usage: $0 <git-ftp version> <alpine linux version>"
+  exit 1
+fi
+
+command -v docker >/dev/null 2>&1 || { echo "docker not installed"; exit 2; }
+command -v git >/dev/null 2>&1 || { echo "git not installed"; exit 2; }
+
+GITFTP_VERSION="$1"
+ALPINE_VERSION="$2"
+
+docker build \
+  --tag "octivi/git-ftp:${GITFTP_VERSION}-alpine${ALPINE_VERSION}" \
+  --tag "octivi/git-ftp:latest" \
+  --build-arg "ALPINE_VERSION=${ALPINE_VERSION}" \
+  --build-arg "GITFTP_VERSION=${GITFTP_VERSION}" \
+  .
+
+docker push "octivi/git-ftp:${GITFTP_VERSION}-alpine${ALPINE_VERSION}"
+docker push "octivi/git-ftp:latest"
+
+git tag \
+  -a \
+  -m "git-ftp version ${GITFTP_VERSION} on alpine linux version ${ALPINE_VERSION}" \
+  "${GITFTP_VERSION}-alpine${ALPINE_VERSION}"
+
+cat <<EOF
+
+Do not forget to run:
+git push --tags
+EOF

@@ -17,6 +17,8 @@ command -v git >/dev/null 2>&1 || { echo "git not installed"; exit 2; }
 GITFTP_VERSION="$1"
 ALPINE_VERSION="$2"
 
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
 docker build \
   --tag "octivi/git-ftp:${GITFTP_VERSION}-alpine${ALPINE_VERSION}" \
   --tag "octivi/git-ftp:latest" \
